@@ -6,10 +6,10 @@ Step-by-step instructions for setting up all applications, external services and
 
 ## Table of Contents
 
-1. [Auth0 — Core Identity (Authentication & API)](#1-auth0--core-identity-authentication--api)
-2. [Auth0 — Token Vault (Connected Accounts & Delegated Access)](#2-auth0--token-vault-connected-accounts--delegated-access-via-my-account-api)
-3. [Auth0 — CIBA (Backchannel Authentication)](#3-auth0--ciba-backchannel-authentication)
-4. [Auth0 — FGA (Fine-Grained Authorization)](#4-auth0--fga-fine-grained-authorization)
+1. [Auth0 - Core Identity (Authentication & API)](#1-auth0--core-identity-authentication--api)
+2. [Auth0 - Token Vault (Connected Accounts & Delegated Access)](#2-auth0--token-vault-connected-accounts--delegated-access-via-my-account-api)
+3. [Auth0 - CIBA (Backchannel Authentication)](#3-auth0--ciba-backchannel-authentication)
+4. [Auth0 - FGA (Fine-Grained Authorization)](#4-auth0--fga-fine-grained-authorization)
 5. [Anthropic Claude (AI/LLM)](#5-anthropic-claude-aillm)
 6. [Slack](#6-slack)
 7. [Zoom](#7-zoom)
@@ -21,7 +21,7 @@ Step-by-step instructions for setting up all applications, external services and
 
 ---
 
-## 1. Auth0 — Core Identity (Authentication & API)
+## 1. Auth0 - Core Identity (Authentication & API)
 
 WarRoom uses four Auth0 applications and one Auth0 API resource server: a **SPA** application for the frontend console, a **M2M** application for backend Auth0 service operations, a **Custom API client** application used for Token Vault-related flows, and a **Regular Web** application that acts as the confidential client for CIBA backchannel authentication, and the **WarRoom API resource server** that defines the application permissions and audience.
 WarRoom uses multiple Auth0 constructs: an **SPA** application for the frontend, a WarRoom API resource server, an **M2M** backend client, a custom API client for Token Vault-related flows, and a **Regular Web App** used as the confidential CIBA client. 
@@ -97,17 +97,17 @@ Create and assign roles:
 
 1. Go to **Authentication > Social**
 2. Enable the connections needed:
-   - **GitHub** — create a Github App at [github.com/settings/developers](https://github.com/settings/developers)
-   - **Google** — use Google OAuth2 credentials from Google Cloud Console
-   - **Slack** — create a Slack app at [api.slack.com/apps](https://api.slack.com/apps)
+   - **GitHub** - create a Github App at [github.com/settings/developers](https://github.com/settings/developers)
+   - **Google** - use Google OAuth2 credentials from Google Cloud Console
+   - **Slack** - create a Slack app at [api.slack.com/apps](https://api.slack.com/apps)
 3. Note the connection names (defaults: `github`, `google-oauth2`, `sign-in-with-slack`)
 
 ### Create Users
 
 1. Go to **User Management > Users > Create User > Create via UI**
 2. Create at least two users:
-   - **App Operator** — the person who who receives CIBA push notifications for sensitive app remediation actions
-   - **Network Operator** — the person who receives CIBA push notifications for sensitive network remediation actions
+   - **App Operator** - the person who who receives CIBA push notifications for sensitive app remediation actions
+   - **Network Operator** - the person who receives CIBA push notifications for sensitive network remediation actions
 3. Note each user's **user_id** (e.g., `auth0|69d2159ed457a645174c3a47`)
 4. These become `AUTH0_APP_REMEDIATION_OWNER_SUB` and `AUTH0_NETWORK_REMEDIATION_OWNER_SUB`
 
@@ -115,8 +115,8 @@ Create and assign roles:
 
 1. Go to **User Management > Roles > Create Role**
 2. Create at least two roles:
-   - **WarRoom Operator** — Role for WarRoom Console users to access the console. To assign permissions, select WarRoom API, and select all permissions EXCEPT execute:remediation. 
-   - **remediation_executor** — Role for executing sensitive github remediation actions. To assign permissions, select WarRoom API, and select execute:remediation. 
+   - **WarRoom Operator** - Role for WarRoom Console users to access the console. To assign permissions, select WarRoom API, and select all permissions EXCEPT execute:remediation. 
+   - **remediation_executor** - Role for executing sensitive github remediation actions. To assign permissions, select WarRoom API, and select execute:remediation. 
 3. Assign both roles to App Operator and Network Operator user profiles
 
 
@@ -144,7 +144,7 @@ AUTH0_GITHUB_CONNECTION_NAME=github
 
 ---
 
-## 2. Auth0 — Token Vault (Connected Accounts & Delegated Access via My Account API)
+## 2. Auth0 - Token Vault (Connected Accounts & Delegated Access via My Account API)
 
 Token Vault enables WarRoom to securely access third-party integrations (e.g., GitHub, Google, Slack) on behalf of a user **without storing OAuth tokens in the application**.
 
@@ -199,7 +199,7 @@ Within the WarRoom application (https://warroom.zappsec.ai):
 - Tokens are never exposed to WarRoom
 - Backend retrieves delegated access via Auth0 when executing actions
 
-### GitHub Setup — Remediation Scope & FGA Enforcement
+### GitHub Setup - Remediation Scope & FGA Enforcement
 
 To validate that Token Vault + FGA correctly enforce authorization boundaries, create two separate GitHub repositories:
 
@@ -240,7 +240,7 @@ GITHUB_NETWORK_REMEDIATION_PATH=<file-name>
 
 ---
 
-## 3. Auth0 — CIBA (Backchannel Authentication)
+## 3. Auth0 - CIBA (Backchannel Authentication)
 
 CIBA enables out-of-band approval for sensitive remediation actions. The remediation owner receives a push notification and can approve/deny without being logged into the app.
 
@@ -293,7 +293,7 @@ AUTH0_NETWORK_REMEDIATION_OWNER_SUB=auth0|<network-remediation-owner-user-id>
 
 ---
 
-## 4. Auth0 — FGA (Fine-Grained Authorization)
+## 4. Auth0 - FGA (Fine-Grained Authorization)
 
 Auth0 FGA provides relationship-based access control. WarRoom uses FGA to check whether a user can approve an incident and whether a user can execute a remediation associated with that incident.
 
@@ -411,11 +411,11 @@ Used for incident detection (polling channels) and responder notifications (DMs)
 
 1. Go to **OAuth & Permissions**
 2. Under **Bot Token Scopes**, add:
-   - `channels:history` — read channel messages
-   - `channels:read` — list channels
-   - `chat:write` — send messages
-   - `im:write` — send DMs
-   - `users:read` — lookup user info
+   - `channels:history` - read channel messages
+   - `channels:read` - list channels
+   - `chat:write` - send messages
+   - `im:write` - send DMs
+   - `users:read` - lookup user info
 
 ### Install to Workspace
 
@@ -458,10 +458,10 @@ Used to automatically create war room meetings for incident coordination.
 ### Configure Scopes
 
 1. Under **Scopes**, add:
-   - `meeting:write:meeting:master` — Create a meeting for a user
-   - `meeting:write:meeting:admin` — Create a meeting for a user
-   - `user:read:list_users:master` — View users
-   - `user:read:list_users:admin` — View users
+   - `meeting:write:meeting:master` - Create a meeting for a user
+   - `meeting:write:meeting:admin` - Create a meeting for a user
+   - `user:read:list_users:master` - View users
+   - `user:read:list_users:admin` - View users
 
 ### Activate the App
 
