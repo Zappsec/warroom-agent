@@ -585,7 +585,9 @@ JWT_SECRET=<your-generated-secret>
 ### 12. CORS Configuration  
 
 No action is required for CORS in the hosted environment.  
+  
 The application is deployed using a single domain `https://warroom.zappsec.ai` for both frontend and backend. Because all requests are same-origin, the browser does not enforce CORS restrictions.  
+  
 CORS_ORIGINS is only relevant for local development or multi-domain deployments, where the frontend and backend run on different origins (for example, different ports or domains).  
 
 ---
