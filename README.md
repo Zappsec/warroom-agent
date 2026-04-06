@@ -51,10 +51,10 @@ Operator approves sensitive action
 
 ## Prerequisites
 
-- **Node.js** 20+
-- **Python** 3.12+
-- **npm** 9+
-- **Git**
+- [**Node.js** 20+](https://nodejs.org/en/download/)
+- [**Python** 3.12+](https://www.python.org/downloads/)
+- [**npm** 9+](https://nodejs.org/en/download/)
+- [**Git**](https://git-scm.com/install/)
 
 External accounts required (see [integrations-setup.md](integrations-setup.md) for detailed setup guides):
 
