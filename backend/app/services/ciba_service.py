@@ -147,6 +147,15 @@ class CIBAService:
     ) -> dict[str, Any]:
         self._ensure_supported_action(action)
 
+        # Defence-in-depth: verify the console operator is authorized for
+        # this specific remediation before sending any CIBA request.
+        operator_sub = initiated_by.get("sub")
+        if operator_sub:
+            fga_client.require_action_execution(
+                user_sub=operator_sub,
+                action=action,
+            )
+
         if action.approval_status != "approved":
             raise HTTPException(status_code=400, detail="Action must be approved before CIBA starts")
 
