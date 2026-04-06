@@ -1,25 +1,27 @@
 # Integrations Setup Guide
 
-Step-by-step instructions for setting up all external services and API credentials required by WarRoom Agent.
+Step-by-step instructions for setting up all applications, external services and API credentials required by WarRoom Agent.
 
 ---
 
 ## Table of Contents
 
-1. [Auth0 — Core Authentication](#1-auth0--core-authentication)
-2. [Auth0 — CIBA (Backchannel Authentication)](#2-auth0--ciba-backchannel-authentication)
-3. [Auth0 — FGA (Fine-Grained Authorization)](#3-auth0--fga-fine-grained-authorization)
-4. [Anthropic Claude (AI/LLM)](#4-anthropic-claude-aillm)
-5. [Slack](#5-slack)
-6. [Zoom](#6-zoom)
-7. [Google Calendar](#7-google-calendar)
-8. [Email (SMTP / Gmail)](#8-email-smtp--gmail)
-9. [GitHub Remediation Repos](#9-github-remediation-repos)
+1. [Auth0 — Core Identity (Authentication & API)](#1-auth0--core-authentication)
+2. [Auth0 — Token Vault (Connected Accounts & Delegated Access)](#2-auth0--tokenvault-connectedaccounts)
+3. [Auth0 — CIBA (Backchannel Authentication)](#3-auth0--ciba-backchannel-authentication)
+4. [Auth0 — FGA (Fine-Grained Authorization)](#4-auth0--fga-fine-grained-authorization)
+5. [Anthropic Claude (AI/LLM)](#5-anthropic-claude-aillm)
+6. [Slack](#6-slack)
+7. [Zoom](#7-zoom)
+8. [Google Calendar](#8-google-calendar)
+9. [Email (SMTP / Gmail)](#9-email-smtp--gmail)
+10. [GitHub Remediation Repos](#10-github-remediation-repos)
 
 ---
 
-## 1. Auth0 — Core Authentication
+## 1. Auth0 — Core Identity (Authentication & API)
 
+WarRoom uses four Auth0 applications and one Auth0 API resource server: a **SPA** application for the frontend console, a **M2M** application for backend Auth0 service operations, a **Custom API client** application used for Token Vault-related flows, and a **Regular Web** application that acts as the confidential client for CIBA backchannel authentication, and the **WarRoom API resource server** that defines the application permissions and audience.
 WarRoom uses multiple Auth0 constructs: an **SPA** application for the frontend, a WarRoom API resource server, an **M2M** backend client, a custom API client for Token Vault-related flows, and a **Regular Web App** used as the confidential CIBA client. 
 
 ## Role Model
@@ -47,15 +49,18 @@ Create and assign roles:
    - `execute:actions`
    - `execute:remediation`
    - `admin:config`
+6. Under **RBAC Settings**, enable:
+   - Enable RBAC
+   - Add Permissions in the Access Token
 
 ### Create the SPA Application (Frontend)
 
 1. Go to **Applications > Create Application**
-2. Name: `WarRoom Frontend`
+2. Name: `WarRoom Agent Console`
 3. Type: **Single Page Application**
 4. Under **Settings**:
    - Note the **Client ID** --> this is your `VITE_AUTH0_CLIENT_ID`
-   - Allowed Callback URLs: `http://localhost:5173/integrations, https://<EC2_IP>/integrations`
+   - Allowed Callback URLs: `http://localhost:5173, http://localhost:5173/integrations, https://<EC2_IP>, https://<EC2_IP>/integrations`
    - Allowed Logout URLs: `http://localhost:5173, https://<EC2_IP>`
    - Allowed Web Origins: `http://localhost:5173, https://<EC2_IP>`
 5. Under **Advanced Settings > Grant Types**, enable:
@@ -65,38 +70,53 @@ Create and assign roles:
 ### Create the M2M Application (Backend)
 
 1. Go to **Applications > Create Application**
-2. Name: `WarRoom Backend`
+2. Name: `WarRoom Agent Backend`
 3. Type: **Machine to Machine**
 4. Authorize it for the `WarRoom API`
-5. Select all scopes
-6. Note the **Client ID** and **Client Secret** --> these are your `AUTH0_CLIENT_ID` and `AUTH0_CLIENT_SECRET`
+5. Note the **Client ID** and **Client Secret** --> these are your `AUTH0_CLIENT_ID` and `AUTH0_CLIENT_SECRET`
 
 ### Create the Custom API Client (Token Vault)
 
+1. Go to ** WarRoom API > Add Application**
+2. Name: `WarRoom API Token Vault Client`
+3. Under Advanced Settings, Select the Token Vault Grant type. 
+4. Note the credentials --> `AUTH0_CUSTOM_API_CLIENT_ID` and `AUTH0_CUSTOM_API_CLIENT_SECRET`
+5. Set `AUTH0_TOKEN_ENDPOINT` to `https://<your-domain>.us.auth0.com/oauth/token`
+
+### Create the Regular Web Application (CIBA)
+
 1. Go to **Applications > Create Application**
-2. Name: `WarRoom Token Vault`
-3. Type: **Machine to Machine**
-4. Authorize it for the `WarRoom API`
-5. Note the credentials --> `AUTH0_CUSTOM_API_CLIENT_ID` and `AUTH0_CUSTOM_API_CLIENT_SECRET`
-6. Set `AUTH0_TOKEN_ENDPOINT` to `https://<your-domain>.us.auth0.com/oauth/token`
+2. Name: `WarRoom Agent Broker`
+3. Type: **Regular Web Application**
+4. Authorize it for the `WarRoom API` for User Access
+5. Select all scopes
 
 ### Configure Social Connections
 
 1. Go to **Authentication > Social**
-2. Enable the connections you need:
-   - **GitHub** — create an OAuth App at [github.com/settings/developers](https://github.com/settings/developers)
+2. Enable the connections needed:
+   - **GitHub** — create a Github App at [github.com/settings/developers](https://github.com/settings/developers)
    - **Google** — use Google OAuth2 credentials from Google Cloud Console
    - **Slack** — create a Slack app at [api.slack.com/apps](https://api.slack.com/apps)
 3. Note the connection names (defaults: `github`, `google-oauth2`, `sign-in-with-slack`)
 
 ### Create Users
 
-1. Go to **User Management > Users > Create User**
+1. Go to **User Management > Users > Create User > Create via UI**
 2. Create at least two users:
-   - **Operator** — the person who monitors the dashboard and approves actions
-   - **Remediation Owner** — the person who receives CIBA push notifications for sensitive actions
+   - **App Operator** — the person who who receives CIBA push notifications for sensitive app remediation actions
+   - **Network Operator** — the person who receives CIBA push notifications for sensitive network remediation actions
 3. Note each user's **user_id** (e.g., `auth0|69d2159ed457a645174c3a47`)
 4. These become `AUTH0_APP_REMEDIATION_OWNER_SUB` and `AUTH0_NETWORK_REMEDIATION_OWNER_SUB`
+
+### Create Roles
+
+1. Go to **User Management > Roles > Create Role**
+2. Create at least two roles:
+   - **WarRoom Operator** — Role for WarRoom Console users to access the console. To assign permissions, select WarRoom API, and select all permissions EXCEPT execute:remediation. 
+   - **remediation_executor** — Role for executing sensitive github remediation actions. To assign permissions, select WarRoom API, and select execute:remediation. 
+3. Assign both roles to App Operator and Network Operator user profiles
+
 
 ### Env vars produced
 
@@ -105,12 +125,13 @@ Create and assign roles:
 VITE_AUTH0_DOMAIN=dev-xxxxx.us.auth0.com
 VITE_AUTH0_CLIENT_ID=<spa-client-id>
 VITE_AUTH0_AUDIENCE=https://warroom-api
+VITE_AUTH0_SCOPE=openid profile email offline_access read:incidents read:audit read:integrations approve:actions execute:actions admin:config
 
 # Backend
 AUTH0_DOMAIN=dev-xxxxx.us.auth0.com
+AUTH0_AUDIENCE=https://warroom-api
 AUTH0_CLIENT_ID=<m2m-client-id>
 AUTH0_CLIENT_SECRET=<m2m-client-secret>
-AUTH0_AUDIENCE=https://warroom-api
 AUTH0_CUSTOM_API_CLIENT_ID=<token-vault-client-id>
 AUTH0_CUSTOM_API_CLIENT_SECRET=<token-vault-client-secret>
 AUTH0_TOKEN_ENDPOINT=https://dev-xxxxx.us.auth0.com/oauth/token
@@ -121,7 +142,103 @@ AUTH0_GITHUB_CONNECTION_NAME=github
 
 ---
 
-## 2. Auth0 — CIBA (Backchannel Authentication)
+## 2. Auth0 — Token Vault (Connected Accounts & Delegated Access via My Account API)
+
+Token Vault enables WarRoom to securely access third-party integrations (e.g., GitHub, Google, Slack) on behalf of a user **without storing OAuth tokens in the application**.
+
+Instead, Auth0 manages provider tokens and WarRoom interacts with them via delegated access.
+
+### Auth0 My Account API (System API)
+
+Token Vault relies on the **Auth0 My Account API**, which is a built-in system API used to manage user connected accounts.
+
+**Purpose:**
+- Link external accounts (GitHub, Google, Slack, etc.)
+- View connected accounts
+- Remove connected accounts
+
+### Locate My Account API
+
+Go to **Applications > APIs > Select Auth0 My Account API**. Identifier will look like: `https://<your-domain>.us.auth0.com/me`
+
+### Verify Permissions
+
+Go to: Auth0 My Account API > Permissions. Ensure the following permissions exist:
+- create:me:connected_accounts
+- read:me:connected_accounts
+- delete:me:connected_accounts
+
+These are required for Token Vault to manage connected accounts.
+
+### Authorize SPA for User Access
+
+Go to: Auth0 My Account API > Application Access. Select SPA App (e.g WarRoom Agent Console). Under **User Access**:
+
+- Set Authorization to: `Authorized`
+- Select the following permissions:
+     - create:me:connected_accounts
+     - read:me:connected_accounts
+     - delete:me:connected_accounts
+ 
+This allows the frontend to initiate connected account flows on behalf of the user.
+
+### User Connects Integrations
+
+Within the WarRoom application (https://warroom.zappsec.ai):
+- Navigate to Integrations
+- Select a provider (e.g., GitHub, Google, Slack)
+- Click Connect
+- Complete OAuth Consent
+- Click Check Linked Accounts, and connected accounts should show as connected
+
+**What Happens Under the Hood**
+- User completes OAuth with provider (e.g., GitHub)
+- Auth0 stores provider tokens securely (Token Vault)
+- Tokens are never exposed to WarRoom
+- Backend retrieves delegated access via Auth0 when executing actions
+
+### GitHub Setup — Remediation Scope & FGA Enforcement
+
+To validate that Token Vault + FGA correctly enforce authorization boundaries, create two separate GitHub repositories:
+
+#### Create Repositories
+
+- **App Operator Repo**
+- **Network Operator Repo**
+
+#### Cross-Collaborate (Intentional Over-Permissioning)
+
+To simulate real-world over-permissioning:
+
+- Add **Network Operator** as a collaborator on the App Repo
+- Add **App Operator** as a collaborator on the Network Repo
+
+At the GitHub level, both users now have access to both repositories.
+
+Each user connects their GitHub account through:
+
+WarRoom -> Integrations -> GitHub -> Connect. This registers their GitHub identity in Auth0 Token Vault.
+
+
+### Env vars produced
+
+```env
+# Backend
+AUTH0_CUSTOM_API_CLIENT_ID=<token-vault-client-id>
+AUTH0_CUSTOM_API_CLIENT_SECRET=<token-vault-client-secret>
+AUTH0_TOKEN_ENDPOINT=https://dev-xxxxx.us.auth0.com/oauth/token
+AUTH0_SLACK_CONNECTION_NAME=sign-in-with-slack
+AUTH0_GOOGLE_CONNECTION_NAME=google-oauth2
+AUTH0_GITHUB_CONNECTION_NAME=github
+GITHUB_APP_REMEDIATION_REPO=<app-operator-github-username>/<github-repo-name>
+GITHUB_APP_REMEDIATION_PATH=<file-name>
+GITHUB_NETWORK_REMEDIATION_REPO=<network-operator-github-username>/<github-repo-name>
+GITHUB_NETWORK_REMEDIATION_PATH=<file-name>
+```
+
+---
+
+## 3. Auth0 — CIBA (Backchannel Authentication)
 
 CIBA enables out-of-band approval for sensitive remediation actions. The remediation owner receives a push notification and can approve/deny without being logged into the app.
 
@@ -133,27 +250,18 @@ CIBA enables out-of-band approval for sensitive remediation actions. The remedia
 ### Create the CIBA Application
 
 1. Go to **Applications > Create Application**
-2. Name: `WarRoom CIBA`
+2. Name: `WarRoom Agent Broker`
 3. Type: **Regular Web Application** (CIBA uses confidential clients)
 4. Under **Settings**:
    - Note the **Client ID** and **Client Secret**
    - These become `AUTH0_CIBA_CLIENT_ID` and `AUTH0_CIBA_CLIENT_SECRET`
 5. Under **Advanced Settings > Grant Types**, enable:
    - **Client Initiated Backchannel Authentication (CIBA)**
-6. Under **Advanced Settings > Endpoints**, confirm the backchannel authorize endpoint is available:
-   - `https://<your-domain>.us.auth0.com/bc-authorize`
-
-### Configure CIBA Settings
-
-1. Under the CIBA application settings, configure:
-   - **Token Delivery Mode**: `poll` (WarRoom polls for the token)
-   - **Default Requested Expiry**: `300` seconds (5 minutes)
-   - **Default Poll Interval**: `5` seconds
 
 ### How It Works
 
 - Backend calls `/bc-authorize` with a `login_hint` (the remediation owner's Auth0 sub) and a `binding_message` (human-readable context)
-- Auth0 sends a notification to the remediation owner (via Auth0 Guardian push, email, or SMS depending on your MFA configuration)
+- Auth0 sends a notification to the remediation owner (via Auth0 Guardian push)
 - The owner approves or denies
 - Backend polls the token endpoint until it receives a token, denial, or expiry
 
@@ -173,9 +281,9 @@ AUTH0_NETWORK_REMEDIATION_OWNER_SUB=auth0|<network-remediation-owner-user-id>
 
 ---
 
-## 3. Auth0 — FGA (Fine-Grained Authorization)
+## 4. Auth0 — FGA (Fine-Grained Authorization)
 
-Auth0 FGA provides relationship-based access control. WarRoom uses it to check if a user `can_approve` or `can_execute` actions on an incident.
+Auth0 FGA provides relationship-based access control. WarRoom uses FGA to check whether a user can approve an incident and whether a user can execute a remediation associated with that incident.
 
 ### Set Up FGA
 
@@ -189,15 +297,49 @@ Auth0 FGA provides relationship-based access control. WarRoom uses it to check i
 2. Define types and relations for your access control (e.g., `incident` type with `can_approve` and `can_execute` relations)
 3. Note the **Model ID** --> `FGA_MODEL_ID`
 
-### Create FGA API Credentials
+### Paste this in Model in the Model Explorer in the Auth0 FGA Dashboard
+```fga
+model
+  schema 1.1
 
-1. Go to **Settings > API Credentials** in the FGA dashboard
+type user
+
+type team
+  relations
+    define member: [user]
+
+type incident
+  relations
+    define approver: [user, team#member]
+    define can_approve: approver
+    define can_view: viewer or approver
+    define viewer: [user, team#member]
+
+type remediation
+  relations
+    define can_approve: approver from incident
+    define can_execute: executor
+    define can_view: executor or viewer from incident or approver from incident
+    define executor: [user, team#member]
+    define incident: [incident]
+
+```
+
+### Create an Authorized Client
+
+1. Go to **Store Settings > Authorized Clients > Create Client** in the FGA dashboard
 2. Create a new client
-3. Note the **Client ID** and **Client Secret**
+3. Note the **Client ID** and **Client Secret** --> `FGA_CLIENT_ID`, `FGA_CLIENT_SECRET`
 
 ### Write Tuples
 
-Write relationship tuples to define who can do what:
+WarRoom writes FGA tuples automatically during incident ingestion and remediation generation.
+
+If you are testing the system end-to-end, no manual tuple creation is required.
+
+Optional Manual Tuple Testing
+
+If you want to test authorization manually in the FGA dashboard, you can create relationship tuples such as:
 
 ```
 user:auth0|<user-id> can_approve incident:<incident-id>
@@ -218,7 +360,7 @@ FGA_API_AUDIENCE=https://api.us1.fga.dev/
 
 ---
 
-## 4. Anthropic Claude (AI/LLM)
+## 5. Anthropic Claude (AI/LLM)
 
 Used for incident classification, action planning, and the AI chat assistant.
 
@@ -237,7 +379,7 @@ ANTHROPIC_MODEL=claude-sonnet-4-5
 
 ---
 
-## 5. Slack
+## 6. Slack
 
 Used for incident detection (polling channels) and responder notifications (DMs).
 
@@ -256,7 +398,6 @@ Used for incident detection (polling channels) and responder notifications (DMs)
    - `chat:write` — send messages
    - `im:write` — send DMs
    - `users:read` — lookup user info
-   - `users:read.email` — lookup users by email
 
 ### Install to Workspace
 
@@ -286,7 +427,7 @@ SLACK_POLL_INTERVAL=10
 
 ---
 
-## 6. Zoom
+## 7. Zoom
 
 Used to automatically create war room meetings for incident coordination.
 
@@ -299,9 +440,10 @@ Used to automatically create war room meetings for incident coordination.
 ### Configure Scopes
 
 1. Under **Scopes**, add:
-   - `meeting:write:admin` — create meetings
-   - `meeting:read:admin` — read meeting details
-   - `user:read:admin` — lookup users
+   - `meeting:write:meeting:master` — Create a meeting for a user
+   - `meeting:write:meeting:admin` — Create a meeting for a user
+   - `user:read:list_users:master` — View users
+   - `user:read:list_users:admin` — View users
 
 ### Activate the App
 
@@ -319,7 +461,7 @@ ZOOM_ACCOUNT_ID=<account-id>
 
 ---
 
-## 7. Google Calendar
+## 8. Google Calendar
 
 Used to create bridge call calendar events with responders as attendees.
 
@@ -336,16 +478,6 @@ Used to create bridge call calendar events with responders as attendees.
 3. Skip the optional role/access steps
 4. Click on the created service account > **Keys > Add Key > Create New Key**
 5. Choose **JSON** and download the key file
-
-### Enable Domain-Wide Delegation (Google Workspace only)
-
-If using Google Workspace:
-
-1. Go to the service account details > **Enable domain-wide delegation**
-2. In Google Workspace Admin Console (admin.google.com):
-   - Go to **Security > API controls > Domain-wide delegation**
-   - Add a new client with the service account's Client ID
-   - Scopes: `https://www.googleapis.com/auth/calendar`
 
 ### For Personal Gmail Accounts
 
@@ -401,13 +533,9 @@ WarRoom commits config changes to GitHub repos as part of remediation. Two repos
    - **Network Remediation** (e.g., `your-org/warroom-network-remediation`)
      - Add a `network-policy.json` file with your network policy configuration
 
-### Create a Personal Access Token
+Each operator should connect their GitHub account via WarRoom --> Integrations --> GitHub. This enables Auth0 Token Vault to access repositories on their behalf.
 
-1. Go to [github.com/settings/tokens](https://github.com/settings/tokens)
-2. Generate a **Fine-grained token** or **Classic token** with:
-   - `repo` scope (full control of repositories)
-3. Copy the token
-4. The backend uses this token via environment or the Auth0 Token Vault integration
+Follow the official Auth0 AI Agents Github Setup Guide and create the Github App: https://auth0.com/ai/docs/integrations/github
 
 ### Env vars produced
 
@@ -424,13 +552,13 @@ GITHUB_NETWORK_REMEDIATION_PATH=network-policy.json
 
 Use this checklist to verify all integrations are configured:
 
-- [ ] Auth0 tenant created with SPA, M2M, and CIBA applications
+- [ ] Auth0 tenant created with SPA, M2M, Custom API Client, and Regular Web App (CIBA) applications
 - [ ] Auth0 API created with all required scopes
 - [ ] Auth0 SPA callback/logout/origin URLs configured
 - [ ] Auth0 social connections enabled (GitHub, Google, Slack)
 - [ ] Auth0 CIBA enabled and configured with poll mode
 - [ ] Auth0 FGA store and authorization model created
-- [ ] Auth0 users created (operator + remediation owners)
+- [ ] Auth0 users created (app operator + network operator) + Auth0 Roles created and assigned to both Auth0 operator user profiles
 - [ ] Anthropic API key generated
 - [ ] Slack app created with bot permissions and installed to workspace
 - [ ] Slack bot invited to the incident channel
@@ -438,5 +566,4 @@ Use this checklist to verify all integrations are configured:
 - [ ] Google Calendar API enabled with service account key
 - [ ] Gmail App Password generated (or alternative SMTP configured)
 - [ ] GitHub remediation repos created with config files
-- [ ] GitHub Personal Access Token generated
-- [ ] All environment variables populated in `backend/.env` and root `.env`
+- [ ] All environment variables populated in `backend/.env` and root `.env.local`
