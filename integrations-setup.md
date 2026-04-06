@@ -20,7 +20,13 @@ Step-by-step instructions for setting up all external services and API credentia
 
 ## 1. Auth0 — Core Authentication
 
-WarRoom uses three Auth0 applications: a **SPA** (frontend), an **M2M** (backend), and a **CIBA** app (backchannel auth).
+WarRoom uses multiple Auth0 constructs: an **SPA** application for the frontend, a WarRoom API resource server, an **M2M** backend client, a custom API client for Token Vault-related flows, and a **Regular Web App** used as the confidential CIBA client. 
+
+## Role Model
+
+Create and assign roles:
+1) WarRoom Operator: standard console permissions such as read:incidents, approve:actions, execute:actions. 
+2) Remediation Executor: includes execute:remediation and is assigned only to remediation owners used in the CIBA flow.
 
 ### Create the Auth0 Tenant
 
