@@ -290,6 +290,7 @@ Auth0 FGA provides relationship-based access control. WarRoom uses FGA to check 
 2. Define types and relations for your access control (e.g., `incident` type with `can_approve` and `can_execute` relations)
 3. Note the **Model ID** --> `FGA_MODEL_ID`
 
+### Paste this in Model in the Model Explorer in the Auth0 FGA Dashboard
 ```fga
 model
   schema 1.1
