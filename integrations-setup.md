@@ -274,7 +274,7 @@ AUTH0_NETWORK_REMEDIATION_OWNER_SUB=auth0|<network-remediation-owner-user-id>
 
 ---
 
-## 3. Auth0 — FGA (Fine-Grained Authorization)
+## 4. Auth0 — FGA (Fine-Grained Authorization)
 
 Auth0 FGA provides relationship-based access control. WarRoom uses it to check if a user `can_approve` or `can_execute` actions on an incident.
 
@@ -290,11 +290,11 @@ Auth0 FGA provides relationship-based access control. WarRoom uses it to check i
 2. Define types and relations for your access control (e.g., `incident` type with `can_approve` and `can_execute` relations)
 3. Note the **Model ID** --> `FGA_MODEL_ID`
 
-### Create FGA API Credentials
+### Create an Authorized Client
 
-1. Go to **Settings > API Credentials** in the FGA dashboard
+1. Go to **Store Settings > Authorized Clients > Create Client** in the FGA dashboard
 2. Create a new client
-3. Note the **Client ID** and **Client Secret**
+3. Note the **Client ID** and **Client Secret** --> `FGA_CLIENT_ID`, `FGA_CLIENT_SECRET`
 
 ### Write Tuples
 
