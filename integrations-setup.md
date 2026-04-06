@@ -147,27 +147,18 @@ CIBA enables out-of-band approval for sensitive remediation actions. The remedia
 ### Create the CIBA Application
 
 1. Go to **Applications > Create Application**
-2. Name: `WarRoom CIBA`
+2. Name: `WarRoom Agent Broker`
 3. Type: **Regular Web Application** (CIBA uses confidential clients)
 4. Under **Settings**:
    - Note the **Client ID** and **Client Secret**
    - These become `AUTH0_CIBA_CLIENT_ID` and `AUTH0_CIBA_CLIENT_SECRET`
 5. Under **Advanced Settings > Grant Types**, enable:
    - **Client Initiated Backchannel Authentication (CIBA)**
-6. Under **Advanced Settings > Endpoints**, confirm the backchannel authorize endpoint is available:
-   - `https://<your-domain>.us.auth0.com/bc-authorize`
-
-### Configure CIBA Settings
-
-1. Under the CIBA application settings, configure:
-   - **Token Delivery Mode**: `poll` (WarRoom polls for the token)
-   - **Default Requested Expiry**: `300` seconds (5 minutes)
-   - **Default Poll Interval**: `5` seconds
 
 ### How It Works
 
 - Backend calls `/bc-authorize` with a `login_hint` (the remediation owner's Auth0 sub) and a `binding_message` (human-readable context)
-- Auth0 sends a notification to the remediation owner (via Auth0 Guardian push, email, or SMS depending on your MFA configuration)
+- Auth0 sends a notification to the remediation owner (via Auth0 Guardian push)
 - The owner approves or denies
 - Backend polls the token endpoint until it receives a token, denial, or expiry
 
