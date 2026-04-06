@@ -7,7 +7,7 @@ Step-by-step instructions for setting up all applications, external services and
 ## Table of Contents
 
 1. [Auth0 — Core Identity (Authentication & API)](#1-auth0--core-authentication)
-2. [Auth0 — Token Vault/Connected Accounts](#2-auth0--tokenvault-connectedaccounts)
+2. [Auth0 — Token Vault (Connected Accounts & Delegated Access)](#2-auth0--tokenvault-connectedaccounts)
 3. [Auth0 — CIBA (Backchannel Authentication)](#3-auth0--ciba-backchannel-authentication)
 4. [Auth0 — FGA (Fine-Grained Authorization)](#4-auth0--fga-fine-grained-authorization)
 5. [Anthropic Claude (AI/LLM)](#5-anthropic-claude-aillm)
@@ -135,7 +135,64 @@ AUTH0_GITHUB_CONNECTION_NAME=github
 
 ---
 
-## 2. Auth0 — CIBA (Backchannel Authentication)
+## 2. Auth0 — Token Vault (Connected Accounts & Delegated Access via My Account API)
+
+Token Vault enables WarRoom to securely access third-party integrations (e.g., GitHub, Google, Slack) on behalf of a user **without storing OAuth tokens in the application**.
+
+Instead, Auth0 manages provider tokens and and WarRoom interacts with them via delegated access.
+
+### Auth0 My Account API (System API)
+
+Token Vault relies on the **Auth0 My Account API**, which is a built-in system API used to manage user connected accounts.
+
+**Purpose:**
+- Link external accounts (GitHub, Google, Slack, etc.)
+- View connected accounts
+- Remove connected accounts
+
+### Step 1 — Locate My Account API
+
+Go to **Applications > APIs > Select Auth0 My Account API**. Identifier will look like: https://<your-auth0-domain>/me
+
+### Step 2 — Verify Permissions
+
+Go to: Auth0 My Account API > Permissions. Ensure the following permissions exist:
+- create:me:connected_accounts
+- read:me:connected_accounts
+- delete:me:connected_accounts
+
+These are required for Token Vault to manage connected accounts.
+
+### Step 3 — Authorize SPA for User Access
+
+Go to: Auth0 My Account API > Application Access. Select SPA App (e.g WarRoom Agent Console). Under **User Access**:
+
+- Set Authorization to: `Authorized`
+- Select the following permissions:
+     - create:me:connected_accounts
+     - read:me:connected_accounts
+     - delete:me:connected_accounts
+ 
+This allows the frontend to initiate connected account flows on behalf of the user.
+
+### Step 4 — User Connects Integrations
+
+Within the WarRoom application (https://warroom.zappsec.ai):
+- Navigate to Integrations
+- Select a provider (e.g., GitHub, Google, Slack)
+- Click Connect
+- Complete OAuth Consent
+- Click Check Linked Accounts, and connected accounts should show as connected
+
+**What Happens Under the Hood**
+- User completes OAuth with provider (e.g., GitHub)
+- Auth0 stores provider tokens securely (Token Vault)
+- Tokens are never exposed to WarRoom
+- Backend retrieves delegated access via Auth0 when executing actions
+
+---
+
+## 3. Auth0 — CIBA (Backchannel Authentication)
 
 CIBA enables out-of-band approval for sensitive remediation actions. The remediation owner receives a push notification and can approve/deny without being logged into the app.
 
