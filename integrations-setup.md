@@ -152,7 +152,7 @@ Token Vault relies on the **Auth0 My Account API**, which is a built-in system A
 
 ### Step 1 — Locate My Account API
 
-Go to **Applications > APIs > Select Auth0 My Account API**. Identifier will look like: https://<your-domain>.us.auth0.com/me
+Go to **Applications > APIs > Select Auth0 My Account API**. Identifier will look like: `https://<your-domain>.us.auth0.com/me`
 
 ### Step 2 — Verify Permissions
 
