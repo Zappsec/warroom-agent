@@ -249,11 +249,14 @@ def prepare_execute_action(
     ciba_enabled = bool(sensitive and _is_ciba_execution_path(action))
     operator_context = _build_operator_context(current_user)
 
-    if not ciba_enabled:
-        fga_client.require_action_execution(
-            user_sub=operator_context["sub"],
-            action=action,
-        )
+    # Always enforce FGA on the logged-in operator, even when CIBA will
+    # delegate execution to the remediation owner.  This ensures the
+    # operator is authorized for this specific remediation before any
+    # CIBA approval request is sent.
+    fga_client.require_action_execution(
+        user_sub=operator_context["sub"],
+        action=action,
+    )
 
     has_step_up_scope = _has_scope(current_user, EXECUTE_REMEDIATION)
     privileged_auth_mode = "ciba" if ciba_enabled else ("redirect" if sensitive else None)
@@ -303,6 +306,13 @@ def start_ciba_action(
     action = db.query(PlannedAction).filter(PlannedAction.id == action_id).first()
     if not action:
         raise HTTPException(status_code=404, detail="Action not found")
+
+    # Enforce FGA on the operator initiating the CIBA flow — the operator
+    # must be authorized to execute this specific remediation.
+    fga_client.require_action_execution(
+        user_sub=current_user.get("sub"),
+        action=action,
+    )
 
     logger.warning(
         "[START CIBA DEBUG] action_id=%s incident_id=%s requested_by_sub=%s requested_by_email=%s",
