@@ -66,8 +66,7 @@ WarRoom uses four Auth0 applications and one Auth0 API resource server: a **SPA*
 2. Name: `WarRoom Agent Backend`
 3. Type: **Machine to Machine**
 4. Authorize it for the `WarRoom API`
-5. Select all scopes
-6. Note the **Client ID** and **Client Secret** --> these are your `AUTH0_CLIENT_ID` and `AUTH0_CLIENT_SECRET`
+5. Note the **Client ID** and **Client Secret** --> these are your `AUTH0_CLIENT_ID` and `AUTH0_CLIENT_SECRET`
 
 ### Create the Custom API Client (Token Vault)
 
