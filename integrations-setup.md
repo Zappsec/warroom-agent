@@ -39,7 +39,7 @@ Create and assign roles:
 
 1. Go to **Applications > APIs > Create API**
 2. Name: `WarRoom API`
-3. Identifier: `https://warroom-api`
+3. Identifier: `https://warroom-api` --> this is your `AUTH0_AUDIENCE`
 4. Signing Algorithm: RS256
 5. Under **Permissions**, add these scopes:
    - `read:incidents`
@@ -258,6 +258,16 @@ CIBA enables out-of-band approval for sensitive remediation actions. The remedia
 5. Under **Advanced Settings > Grant Types**, enable:
    - **Client Initiated Backchannel Authentication (CIBA)**
 
+### Other CIBA defaults
+
+Set `AUTH0_CIBA_ENABLED` to `true`. However, setting it to `false` will disable CIBA
+Set `AUTH0_CIBA_AUDIENCE` is same as `AUTH0_AUDIENCE` we set in previous steps
+Set `AUTH0_CIBA_SCOPE` to `openid execute:remediation`, this is needed step up authentication
+Change `AUTH0_CIBA_REQUESTED_EXPIRY` from `300` seconds default if required. This value decides how long CIBA will wait for mobile push notification approval before sending the request to email.
+Change `AUTH0_CIBA_DEFAULT_POLL_INTERVAL` from `5` minutes default if required. 
+Set `AUTH0_APP_REMEDIATION_OWNER_SUB` to `auth0|<app-remediation-owner-user-id>`. `app-remediation-owner-user-id` can be retrieved from Auth0 tenant. This value decide which operator is allowed to execute APP config changes
+Set `AUTH0_NETWORK_REMEDIATION_OWNER_SUB` to `auth0|<network-remediation-owner-user-id>`. `app-remediation-owner-user-id` can be retrieved from Auth0 tenant. This value decide which operator is allowed to execute NETWORK config changes
+
 ### How It Works
 
 - Backend calls `/bc-authorize` with a `login_hint` (the remediation owner's Auth0 sub) and a `binding_message` (human-readable context)
@@ -296,6 +306,12 @@ Auth0 FGA provides relationship-based access control. WarRoom uses FGA to check 
 1. In your FGA store, create a new authorization model
 2. Define types and relations for your access control (e.g., `incident` type with `can_approve` and `can_execute` relations)
 3. Note the **Model ID** --> `FGA_MODEL_ID`
+
+### Get FGA API URL and Audience values
+
+Go to **Store Settings > API URL**  --> This is your `FGA_API_URL`
+Set your `FGA_API_AUDIENCE` to the same URL but with a slash notation `/` at the end (see below Env vars example)
+Set your `FGA_API_TOKEN_ISSUER` to `https://auth.fga.dev` which is the default
 
 ### Paste this in Model in the Model Explorer in the Auth0 FGA Dashboard
 ```fga
