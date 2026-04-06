@@ -276,7 +276,7 @@ AUTH0_NETWORK_REMEDIATION_OWNER_SUB=auth0|<network-remediation-owner-user-id>
 
 ## 4. Auth0 — FGA (Fine-Grained Authorization)
 
-Auth0 FGA provides relationship-based access control. WarRoom uses it to check if a user `can_approve` or `can_execute` actions on an incident.
+Auth0 FGA provides relationship-based access control. WarRoom uses FGA to check whether a user can approve an incident and whether a user can execute a remediation associated with that incident.
 
 ### Set Up FGA
 
@@ -289,6 +289,33 @@ Auth0 FGA provides relationship-based access control. WarRoom uses it to check i
 1. In your FGA store, create a new authorization model
 2. Define types and relations for your access control (e.g., `incident` type with `can_approve` and `can_execute` relations)
 3. Note the **Model ID** --> `FGA_MODEL_ID`
+
+```fga
+model
+  schema 1.1
+
+type user
+
+type team
+  relations
+    define member: [user]
+
+type incident
+  relations
+    define approver: [user, team#member]
+    define can_approve: approver
+    define can_view: viewer or approver
+    define viewer: [user, team#member]
+
+type remediation
+  relations
+    define can_approve: approver from incident
+    define can_execute: executor
+    define can_view: executor or viewer from incident or approver from incident
+    define executor: [user, team#member]
+    define incident: [incident]
+
+```
 
 ### Create an Authorized Client
 
