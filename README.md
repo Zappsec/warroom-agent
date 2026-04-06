@@ -130,7 +130,7 @@ cd backend
 python3.12 -m venv venv
 ```
 
-> **Troubleshooting (Debian/Ubuntu):** On Debian-based Linux distributions, `python3.12 -m venv` may fail with an error like `ensurepip is not available`. This happens because Debian packages the `venv` module separately. Install it with:
+> **Tip:** `python3.12 -m venv` may fail with an error like `ensurepip is not available`. If this happens install the missing `venv` package. Install it with:
 >
 > ```bash
 > sudo apt update
@@ -179,7 +179,7 @@ Backend API will be available at `http://localhost:8000`.
 
 ## EC2 Deployment (Amazon Linux 2023)
 
-This section provides optional setup scripts to simplify deploying WarRoom Agent on an AWS EC2 instance running **Amazon Linux 2023**. The scripts install all base dependencies (Node.js, Python, Nginx, etc.), configure systemd services, set up SSL, and prepare the instance for automatic deployments via the GitHub Actions CI/CD pipeline. If you are deploying to a different environment, you can use these scripts as a reference.
+This section provides optional convenience scripts to simplify deploying WarRoom Agent on an AWS EC2 instance running **Amazon Linux 2023**. The scripts install all base dependencies (Node.js, Python, Nginx, etc.), configure systemd services, set up SSL, and prepare the instance for automatic deployments via the GitHub Actions CI/CD pipeline. If you are deploying to a different environment, you can use these scripts as a reference.
 
 ### One-Time Server Setup
 
