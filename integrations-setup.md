@@ -6,10 +6,10 @@ Step-by-step instructions for setting up all applications, external services and
 
 ## Table of Contents
 
-1. [Auth0 - Core Identity (Authentication & API)](#1-auth0-core-identity-authentication--api)
-2. [Auth0 - Token Vault (Connected Accounts & Delegated Access)](#2-auth0-token-vault-connected-accounts--delegated-access-via-my-account-api)
-3. [Auth0 - CIBA (Backchannel Authentication)](#3-auth0-ciba-backchannel-authentication)
-4. [Auth0 - FGA (Fine-Grained Authorization)](#4-auth0-fga-fine-grained-authorization)
+1. [Auth0 - Core Identity (Authentication & API)](#1-auth0--core-identity-authentication--api)
+2. [Auth0 - Token Vault (Connected Accounts & Delegated Access)](#2-auth0--token-vault-connected-accounts--delegated-access-via-my-account-api)
+3. [Auth0 - CIBA (Backchannel Authentication)](#3-auth0--ciba-backchannel-authentication)
+4. [Auth0 - FGA (Fine-Grained Authorization)](#4-auth0--fga-fine-grained-authorization)
 5. [Anthropic Claude (AI/LLM)](#5-anthropic-claude-aillm)
 6. [Slack](#6-slack)
 7. [Zoom](#7-zoom)
