@@ -139,7 +139,7 @@ AUTH0_GITHUB_CONNECTION_NAME=github
 
 Token Vault enables WarRoom to securely access third-party integrations (e.g., GitHub, Google, Slack) on behalf of a user **without storing OAuth tokens in the application**.
 
-Instead, Auth0 manages provider tokens and and WarRoom interacts with them via delegated access.
+Instead, Auth0 manages provider tokens and WarRoom interacts with them via delegated access.
 
 ### Auth0 My Account API (System API)
 
@@ -150,11 +150,11 @@ Token Vault relies on the **Auth0 My Account API**, which is a built-in system A
 - View connected accounts
 - Remove connected accounts
 
-### Step 1 — Locate My Account API
+### Locate My Account API
 
 Go to **Applications > APIs > Select Auth0 My Account API**. Identifier will look like: `https://<your-domain>.us.auth0.com/me`
 
-### Step 2 — Verify Permissions
+### Verify Permissions
 
 Go to: Auth0 My Account API > Permissions. Ensure the following permissions exist:
 - create:me:connected_accounts
@@ -163,7 +163,7 @@ Go to: Auth0 My Account API > Permissions. Ensure the following permissions exis
 
 These are required for Token Vault to manage connected accounts.
 
-### Step 3 — Authorize SPA for User Access
+### Authorize SPA for User Access
 
 Go to: Auth0 My Account API > Application Access. Select SPA App (e.g WarRoom Agent Console). Under **User Access**:
 
@@ -175,7 +175,7 @@ Go to: Auth0 My Account API > Application Access. Select SPA App (e.g WarRoom Ag
  
 This allows the frontend to initiate connected account flows on behalf of the user.
 
-### Step 4 — User Connects Integrations
+### User Connects Integrations
 
 Within the WarRoom application (https://warroom.zappsec.ai):
 - Navigate to Integrations
@@ -189,6 +189,45 @@ Within the WarRoom application (https://warroom.zappsec.ai):
 - Auth0 stores provider tokens securely (Token Vault)
 - Tokens are never exposed to WarRoom
 - Backend retrieves delegated access via Auth0 when executing actions
+
+### GitHub Setup — Remediation Scope & FGA Enforcement
+
+To validate that Token Vault + FGA correctly enforce authorization boundaries, create two separate GitHub repositories:
+
+#### Create Repositories
+
+- **App Operator Repo**
+- **Network Operator Repo**
+
+#### Cross-Collaborate (Intentional Over-Permissioning)
+
+To simulate real-world over-permissioning:
+
+- Add **Network Operator** as a collaborator on the App Repo
+- Add **App Operator** as a collaborator on the Network Repo
+
+At the GitHub level, both users now have access to both repositories.
+
+Each user connects their GitHub account through:
+
+WarRoom -> Integrations -> GitHub -> Connect. This registers their GitHub identity in Auth0 Token Vault.
+
+
+### Env vars produced
+
+```env
+# Backend
+AUTH0_CUSTOM_API_CLIENT_ID=<token-vault-client-id>
+AUTH0_CUSTOM_API_CLIENT_SECRET=<token-vault-client-secret>
+AUTH0_TOKEN_ENDPOINT=https://dev-xxxxx.us.auth0.com/oauth/token
+AUTH0_SLACK_CONNECTION_NAME=sign-in-with-slack
+AUTH0_GOOGLE_CONNECTION_NAME=google-oauth2
+AUTH0_GITHUB_CONNECTION_NAME=github
+GITHUB_APP_REMEDIATION_REPO=<app-operator-github-username>/<github-repo-name>
+GITHUB_APP_REMEDIATION_PATH=<file-name>
+GITHUB_NETWORK_REMEDIATION_REPO=<network-operator-github-username>/<github-repo-name>
+GITHUB_NETWORK_REMEDIATION_PATH=<file-name>
+```
 
 ---
 
