@@ -526,7 +526,9 @@ WarRoom commits config changes to GitHub repos as part of remediation. Two repos
    - **Network Remediation** (e.g., `your-org/warroom-network-remediation`)
      - Add a `network-policy.json` file with your network policy configuration
 
-Follow the official Auth0 AI Agents Github Setup Guide and reate the Github App: https://auth0.com/ai/docs/integrations/github
+Each operator should connect their GitHub account via WarRoom --> Integrations --> GitHub. This enables Auth0 Token Vault to access repositories on their behalf.
+
+Follow the official Auth0 AI Agents Github Setup Guide and create the Github App: https://auth0.com/ai/docs/integrations/github
 
 ### Env vars produced
 
