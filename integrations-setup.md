@@ -42,6 +42,9 @@ WarRoom uses four Auth0 applications and one Auth0 API resource server: a **SPA*
    - `execute:actions`
    - `execute:remediation`
    - `admin:config`
+6. Under **RBAC Settings**, enable:
+   - Enable RBAC
+   - Add Permissions in the Access Token
 
 ### Create the SPA Application (Frontend)
 
