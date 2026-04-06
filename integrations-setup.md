@@ -6,20 +6,20 @@ Step-by-step instructions for setting up all applications, external services and
 
 ## Table of Contents
 
-1. [Auth0 — Core Identity (Authentication & API)](#1-auth0--core-authentication)
-2. [Auth0 — Token Vault (Connected Accounts & Delegated Access)](#2-auth0--tokenvault-connectedaccounts)
-3. [Auth0 — CIBA (Backchannel Authentication)](#3-auth0--ciba-backchannel-authentication)
-4. [Auth0 — FGA (Fine-Grained Authorization)](#4-auth0--fga-fine-grained-authorization)
-5. [Anthropic Claude (AI/LLM)](#5-anthropic-claude-aillm)
-6. [Slack](#6-slack)
-7. [Zoom](#7-zoom)
-8. [Google Calendar](#8-google-calendar)
-9. [Email (SMTP / Gmail)](#9-email-smtp--gmail)
-10. [GitHub Remediation Repos](#10-github-remediation-repos)
+1. [Auth0 — Core Identity (Authentication & API)](#auth0-core)
+2. [Auth0 — Token Vault (Connected Accounts & Delegated Access)](#auth0-tv)
+3. [Auth0 — CIBA (Backchannel Authentication)](#auth0-ciba)
+4. [Auth0 — FGA (Fine-Grained Authorization)](#auth0-fga)
+5. [Anthropic Claude (AI/LLM)](#claude)
+6. [Slack](#slack)
+7. [Zoom](#zoom)
+8. [Google Calendar](#google-calendar)
+9. [Email (SMTP / Gmail)](#email)
+10. [GitHub Remediation Repos](#github)
 
 ---
 
-## 1. Auth0 — Core Identity (Authentication & API)
+## 1. Auth0 — Core Identity (Authentication & API) {#auth0-core}
 
 WarRoom uses four Auth0 applications and one Auth0 API resource server: a **SPA** application for the frontend console, a **M2M** application for backend Auth0 service operations, a **Custom API client** application used for Token Vault-related flows, and a **Regular Web** application that acts as the confidential client for CIBA backchannel authentication, and the **WarRoom API resource server** that defines the application permissions and audience.
 WarRoom uses multiple Auth0 constructs: an **SPA** application for the frontend, a WarRoom API resource server, an **M2M** backend client, a custom API client for Token Vault-related flows, and a **Regular Web App** used as the confidential CIBA client. 
@@ -142,7 +142,7 @@ AUTH0_GITHUB_CONNECTION_NAME=github
 
 ---
 
-## 2. Auth0 — Token Vault (Connected Accounts & Delegated Access via My Account API)
+## 2. Auth0 — Token Vault (Connected Accounts & Delegated Access via My Account API) {#auth0-tv}
 
 Token Vault enables WarRoom to securely access third-party integrations (e.g., GitHub, Google, Slack) on behalf of a user **without storing OAuth tokens in the application**.
 
@@ -238,7 +238,7 @@ GITHUB_NETWORK_REMEDIATION_PATH=<file-name>
 
 ---
 
-## 3. Auth0 — CIBA (Backchannel Authentication)
+## 3. Auth0 — CIBA (Backchannel Authentication) {#auth0-ciba}
 
 CIBA enables out-of-band approval for sensitive remediation actions. The remediation owner receives a push notification and can approve/deny without being logged into the app.
 
@@ -291,7 +291,7 @@ AUTH0_NETWORK_REMEDIATION_OWNER_SUB=auth0|<network-remediation-owner-user-id>
 
 ---
 
-## 4. Auth0 — FGA (Fine-Grained Authorization)
+## 4. Auth0 — FGA (Fine-Grained Authorization) {#auth0-fga}
 
 Auth0 FGA provides relationship-based access control. WarRoom uses FGA to check whether a user can approve an incident and whether a user can execute a remediation associated with that incident.
 
@@ -376,7 +376,7 @@ FGA_API_AUDIENCE=https://api.us1.fga.dev/
 
 ---
 
-## 5. Anthropic Claude (AI/LLM)
+## 5. Anthropic Claude (AI/LLM) {#claude}
 
 Used for incident classification, action planning, and the AI chat assistant.
 
@@ -395,7 +395,7 @@ ANTHROPIC_MODEL=claude-sonnet-4-5
 
 ---
 
-## 6. Slack
+## 6. Slack {#slack}
 
 Used for incident detection (polling channels) and responder notifications (DMs).
 
@@ -443,7 +443,7 @@ SLACK_POLL_INTERVAL=10
 
 ---
 
-## 7. Zoom
+## 7. Zoom {#zoom}
 
 Used to automatically create war room meetings for incident coordination.
 
@@ -477,7 +477,7 @@ ZOOM_ACCOUNT_ID=<account-id>
 
 ---
 
-## 8. Google Calendar
+## 8. Google Calendar {#google-calendar}
 
 Used to create bridge call calendar events with responders as attendees.
 
@@ -511,7 +511,7 @@ GOOGLE_SERVICE_ACCOUNT_KEY=/path/to/google-service-account.json
 
 ---
 
-## 8. Email (SMTP / Gmail)
+## 8. Email (SMTP / Gmail) {#email}
 
 Used to send escalation emails to stakeholders.
 
@@ -537,7 +537,7 @@ SMTP_PASS=<16-char-app-password>
 
 ---
 
-## 9. GitHub Remediation Repos
+## 9. GitHub Remediation Repos {#github}
 
 WarRoom commits config changes to GitHub repos as part of remediation. Two repos are used: one for application service config, one for network policies.
 
