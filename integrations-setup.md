@@ -19,7 +19,7 @@ Step-by-step instructions for setting up all external services and API credentia
 
 ---
 
-## 1. Auth0 — Core Authentication
+## 1. Auth0 — Core Identity (Authentication & API)
 
 WarRoom uses three Auth0 applications: a **SPA** (frontend), an **M2M** (backend), and a **CIBA** app (backchannel auth).
 
@@ -46,11 +46,11 @@ WarRoom uses three Auth0 applications: a **SPA** (frontend), an **M2M** (backend
 ### Create the SPA Application (Frontend)
 
 1. Go to **Applications > Create Application**
-2. Name: `WarRoom Frontend`
+2. Name: `WarRoom Agent Console`
 3. Type: **Single Page Application**
 4. Under **Settings**:
    - Note the **Client ID** --> this is your `VITE_AUTH0_CLIENT_ID`
-   - Allowed Callback URLs: `http://localhost:5173/integrations, https://<EC2_IP>/integrations`
+   - Allowed Callback URLs: `http://localhost:5173, http://localhost:5173/integrations, https://<EC2_IP>, https://<EC2_IP>/integrations`
    - Allowed Logout URLs: `http://localhost:5173, https://<EC2_IP>`
    - Allowed Web Origins: `http://localhost:5173, https://<EC2_IP>`
 5. Under **Advanced Settings > Grant Types**, enable:
@@ -60,7 +60,7 @@ WarRoom uses three Auth0 applications: a **SPA** (frontend), an **M2M** (backend
 ### Create the M2M Application (Backend)
 
 1. Go to **Applications > Create Application**
-2. Name: `WarRoom Backend`
+2. Name: `WarRoom Agent Backend`
 3. Type: **Machine to Machine**
 4. Authorize it for the `WarRoom API`
 5. Select all scopes
@@ -68,30 +68,46 @@ WarRoom uses three Auth0 applications: a **SPA** (frontend), an **M2M** (backend
 
 ### Create the Custom API Client (Token Vault)
 
+1. Go to ** WarRoom API > Add Application**
+2. Name: `WarRoom API Token Vault Client`
+3. Under Advanced Settings, Select the Token Vault Grant type. 
+4. Note the credentials --> `AUTH0_CUSTOM_API_CLIENT_ID` and `AUTH0_CUSTOM_API_CLIENT_SECRET`
+5. Set `AUTH0_TOKEN_ENDPOINT` to `https://<your-domain>.us.auth0.com/oauth/token`
+
+### Create the Regular Web Application (CIBA)
+
 1. Go to **Applications > Create Application**
-2. Name: `WarRoom Token Vault`
-3. Type: **Machine to Machine**
-4. Authorize it for the `WarRoom API`
-5. Note the credentials --> `AUTH0_CUSTOM_API_CLIENT_ID` and `AUTH0_CUSTOM_API_CLIENT_SECRET`
-6. Set `AUTH0_TOKEN_ENDPOINT` to `https://<your-domain>.us.auth0.com/oauth/token`
+2. Name: `WarRoom Agent Broker`
+3. Type: **Regular Web Application**
+4. Authorize it for the `WarRoom API` for User Access
+5. Select all scopes
 
 ### Configure Social Connections
 
 1. Go to **Authentication > Social**
-2. Enable the connections you need:
-   - **GitHub** — create an OAuth App at [github.com/settings/developers](https://github.com/settings/developers)
+2. Enable the connections needed:
+   - **GitHub** — create a Github App at [github.com/settings/developers](https://github.com/settings/developers)
    - **Google** — use Google OAuth2 credentials from Google Cloud Console
    - **Slack** — create a Slack app at [api.slack.com/apps](https://api.slack.com/apps)
 3. Note the connection names (defaults: `github`, `google-oauth2`, `sign-in-with-slack`)
 
 ### Create Users
 
-1. Go to **User Management > Users > Create User**
+1. Go to **User Management > Users > Create User > Create via UI**
 2. Create at least two users:
-   - **Operator** — the person who monitors the dashboard and approves actions
-   - **Remediation Owner** — the person who receives CIBA push notifications for sensitive actions
+   - **App Operator** — the person who who receives CIBA push notifications for sensitive app remediation actions
+   - **Network Operator** — the person who receives CIBA push notifications for sensitive network remediation actions
 3. Note each user's **user_id** (e.g., `auth0|69d2159ed457a645174c3a47`)
 4. These become `AUTH0_APP_REMEDIATION_OWNER_SUB` and `AUTH0_NETWORK_REMEDIATION_OWNER_SUB`
+
+### Create Roles
+
+1. Go to **User Management > Roles > Create Role**
+2. Create at least two roles:
+   - **WarRoom Operator** — Role for WarRoom Console users to access the console
+   - **remediation_executor** — Role for executing sensitive github remediation actions
+3. Assign both roles to App Operator and Network Operator user profiles
+
 
 ### Env vars produced
 
