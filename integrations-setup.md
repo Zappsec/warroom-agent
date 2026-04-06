@@ -17,6 +17,7 @@ Step-by-step instructions for setting up all applications, external services and
 9. [Email (SMTP / Gmail)](#9-email-smtp--gmail)
 10. [GitHub Remediation Repos](#10-github-remediation-repos)
 11. [Generate JWT Secret](#11-generate-jwt-secret)
+12. [CORS Configuration](#12-cors-configuration)
 
 ---
 
@@ -578,6 +579,14 @@ JWT_SECRET=<your-generated-secret>
 ```
 
 > **Note:** Keep this value secret and never commit it to version control.
+
+---
+
+### 12. CORS Configuration  
+
+No action is required for CORS in the hosted environment.  
+The application is deployed using a single domain `https://warroom.zappsec.ai` for both frontend and backend. Because all requests are same-origin, the browser does not enforce CORS restrictions.  
+CORS_ORIGINS is only relevant for local development or multi-domain deployments, where the frontend and backend run on different origins (for example, different ports or domains).  
 
 ---
 
