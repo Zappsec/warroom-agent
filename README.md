@@ -1,26 +1,40 @@
 # WarRoom Agent
 
-AI-powered security incident war room that orchestrates detection, triage, coordination, and remediation — with Auth0 CIBA (Client Initiated Backchannel Authentication) for human-in-the-loop approval of sensitive actions.
+AI-powered security incident war room that orchestrates detection, triage, coordination, and remediation with Auth0 CIBA (Client Initiated Backchannel Authentication) for human-in-the-loop approval of sensitive actions.
 
 Built for the **Auth0 Hackathon**.
 
 ---
 
+## Table of Contents
+
+- [What It Does](#what-it-does)
+- [Tech Stack](#tech-stack)
+- [Prerequisites](#prerequisites)
+- [Local Development Setup](#local-development-setup)
+- [EC2 Deployment (Amazon Linux 2023)](#ec2-deployment-amazon-linux-2023)
+- [Environment Variables](#environment-variables)
+- [API Endpoints](#api-endpoints)
+- [Project Structure](#project-structure)
+- [License](#license)
+
+---
+
 ## What It Does
 
-WarRoom Agent monitors Slack channels for security incidents, uses Claude AI to classify severity and plan response actions, coordinates teams via Slack/Zoom/Calendar/Email, and executes remediation — requiring out-of-band human approval (via Auth0 CIBA) before touching sensitive systems like GitHub repos.
+WarRoom Agent monitors Slack channels for security incidents, uses Claude AI to classify severity and plan response actions, coordinates teams via Slack/Zoom/Calendar/Email, and executes remediation, requiring out-of-band human approval (via Auth0 CIBA) before touching sensitive systems like GitHub repos.
 
 ### Key Features
 
-- **AI Incident Classification** — Claude LLM analyzes raw incident text to determine severity (P1/P2/P3), affected domains, impacted systems, and confidence scores
-- **Automatic Responder Resolution** — Matches on-call responders based on incident domain, expertise, and availability
-- **Known Issue Matching** — Searches historical knowledge base for similar past incidents and suggests remediation steps
-- **AI Action Planning** — Generates coordination actions: Zoom war rooms, calendar bridges, Slack DMs, email escalations, and GitHub config remediation
-- **Auth0 CIBA Approval Flow** — Sensitive GitHub remediation actions trigger backchannel push notifications to the remediation owner for out-of-band approval before execution
-- **Auth0 FGA (Fine-Grained Authorization)** — Role-based access checks for approving and executing actions
-- **Interactive AI Chat** — Incident-scoped chat assistant for runbooks, diagnostics, and root cause analysis
-- **Full Audit Trail** — Every AI decision, human approval, and action execution is logged
-- **Demo Console** — Inject test incidents to walk through the full workflow
+- **AI Incident Classification** - Claude LLM analyzes raw incident text to determine severity (P1/P2/P3), affected domains, impacted systems, and confidence scores
+- **Automatic Responder Resolution** - Matches on-call responders based on incident domain, expertise, and availability
+- **Known Issue Matching** - Searches historical knowledge base for similar past incidents and suggests remediation steps
+- **AI Action Planning** - Generates coordination actions: Zoom war rooms, calendar bridges, Slack DMs, email escalations, and GitHub config remediation
+- **Auth0 CIBA Approval Flow** - Sensitive GitHub remediation actions trigger backchannel push notifications to the remediation owner for out-of-band approval before execution
+- **Auth0 FGA (Fine-Grained Authorization)** - Role-based access checks for approving and executing actions
+- **Interactive AI Chat** - Incident-scoped chat assistant for runbooks, diagnostics, and root cause analysis
+- **Full Audit Trail** - Every AI decision, human approval, and action execution is logged
+- **Demo Console** - Inject test incidents to walk through the full workflow
 
 ### CIBA Flow
 
@@ -53,8 +67,8 @@ Operator approves sensitive action
 
 - [**Node.js** 20+](https://nodejs.org/en/download/)
 - [**Python** 3.12+](https://www.python.org/downloads/)
-- [**npm** 9+](https://nodejs.org/en/download/)
-- [**Git**](https://git-scm.com/install/)
+- [**npm** 9+](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm) (bundled with Node.js)
+- [**Git**](https://git-scm.com/downloads)
 
 External accounts required (see [integrations-setup.md](integrations-setup.md) for detailed setup guides):
 
@@ -109,13 +123,31 @@ Frontend will be available at `http://localhost:8080`.
 
 ### 3. Backend setup
 
+#### Create a Python virtual environment
+
 ```bash
 cd backend
 python3.12 -m venv venv
+```
+
+> **Troubleshooting (Debian/Ubuntu):** On Debian-based Linux distributions, `python3.12 -m venv` may fail with an error like `ensurepip is not available`. This happens because Debian packages the `venv` module separately. Install it with:
+>
+> ```bash
+> sudo apt update
+> sudo apt install python3.12-venv
+> ```
+>
+> **Important:** The `python3.x-venv` package version must match your Python version. If you are using Python 3.11, install `python3.11-venv` instead. If you are using Python 3.13, install `python3.13-venv`, and so on. Using a mismatched version will not work.
+
+#### Activate and install dependencies
+
+```bash
 source venv/bin/activate
 pip install --upgrade pip
 pip install -r requirements.txt
 ```
+
+#### Configure environment variables
 
 Create `backend/.env` by copying the example and filling in your secrets:
 
@@ -138,20 +170,22 @@ Backend API will be available at `http://localhost:8000`.
 
 ### 5. Verify
 
-- Open `http://localhost:8080` — you should see the landing page
+- Open `http://localhost:8080` - you should see the landing page
 - Log in with Auth0
 - Navigate to the Demo Console (`/demo`) to inject a test incident
 - Watch the AI classify, plan actions, and route through approval
 
 ---
 
-## EC2 Deployment
+## EC2 Deployment (Amazon Linux 2023)
+
+This section provides optional setup scripts to simplify deploying WarRoom Agent on an AWS EC2 instance running **Amazon Linux 2023**. The scripts install all base dependencies (Node.js, Python, Nginx, etc.), configure systemd services, set up SSL, and prepare the instance for automatic deployments via the GitHub Actions CI/CD pipeline. If you are deploying to a different environment, you can use these scripts as a reference.
 
 ### One-Time Server Setup
 
 1. **Launch an EC2 instance** (Amazon Linux 2023, t3.small or larger)
 
-2. **Configure Security Group** — allow inbound ports: **22** (SSH), **80** (HTTP), **443** (HTTPS)
+2. **Configure Security Group** - allow inbound ports: **22** (SSH), **80** (HTTP), **443** (HTTPS)
 
 3. **Update the EC2 IP** in `scripts/ec2-setup-ssl.sh` (line 16) with your instance's public IP
 
@@ -164,7 +198,7 @@ ssh -i your-key.pem ec2-user@<EC2_PUBLIC_IP>
 cd ~/warroom/scripts
 chmod +x ec2-setup.sh ec2-setup-ssl.sh
 
-# Step 1: Base setup — packages, venv, systemd services
+# Step 1: Base setup - installs Node.js, Python, Nginx, creates venv, configures systemd services
 sudo ./ec2-setup.sh
 
 # Step 2: SSL + Nginx reverse proxy (required for Auth0 SPA SDK)
