@@ -566,7 +566,7 @@ GITHUB_NETWORK_REMEDIATION_PATH=network-policy.json
 
 ---
 
-### 11. Generate JWT Secret
+## 11. Generate JWT Secret
 
 Run the following command to generate a secure 256-bit secret for signing JWT tokens:  
 ```bash
@@ -582,7 +582,7 @@ JWT_SECRET=<your-generated-secret>
 
 ---
 
-### 12. CORS Configuration  
+## 12. CORS Configuration  
 
 No action is required for CORS in the hosted environment.  
   
