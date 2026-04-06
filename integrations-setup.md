@@ -16,6 +16,7 @@ Step-by-step instructions for setting up all applications, external services and
 8. [Google Calendar](#8-google-calendar)
 9. [Email (SMTP / Gmail)](#9-email-smtp--gmail)
 10. [GitHub Remediation Repos](#10-github-remediation-repos)
+11. [Generate JWT Secret](#11-generate-jwt-secret)
 
 ---
 
@@ -260,13 +261,13 @@ CIBA enables out-of-band approval for sensitive remediation actions. The remedia
 
 ### Other CIBA defaults
 
-Set `AUTH0_CIBA_ENABLED` to `true`. However, setting it to `false` will disable CIBA  
-Set `AUTH0_CIBA_AUDIENCE` is same as `AUTH0_AUDIENCE` we set in previous steps  
-Set `AUTH0_CIBA_SCOPE` to `openid execute:remediation`, this is needed step up authentication  
-Change `AUTH0_CIBA_REQUESTED_EXPIRY` from `300` seconds default if required. This value decides how long CIBA will wait for mobile push notification approval before sending the request to email.  
-Change `AUTH0_CIBA_DEFAULT_POLL_INTERVAL` from `5` minutes default if required.  
-Set `AUTH0_APP_REMEDIATION_OWNER_SUB` to `auth0|<app-remediation-owner-user-id>`. `app-remediation-owner-user-id` can be retrieved from Auth0 tenant. This value decide which operator is allowed to execute APP config changes  
-Set `AUTH0_NETWORK_REMEDIATION_OWNER_SUB` to `auth0|<network-remediation-owner-user-id>`. `app-remediation-owner-user-id` can be retrieved from Auth0 tenant. This value decide which operator is allowed to execute NETWORK config changes  
+- Set `AUTH0_CIBA_ENABLED` to `true`. However, setting it to `false` will disable CIBA  
+- Set `AUTH0_CIBA_AUDIENCE` is same as `AUTH0_AUDIENCE` we set in previous steps  
+- Set `AUTH0_CIBA_SCOPE` to `openid execute:remediation`, this is needed step up authentication  
+- Change `AUTH0_CIBA_REQUESTED_EXPIRY` from `300` seconds default if required. This value decides how long CIBA will wait for mobile push notification approval before sending the request to email.  
+- Change `AUTH0_CIBA_DEFAULT_POLL_INTERVAL` from `5` minutes default if required.  
+- Set `AUTH0_APP_REMEDIATION_OWNER_SUB` to `auth0|<app-remediation-owner-user-id>`. `app-remediation-owner-user-id` can be retrieved from Auth0 tenant. This value decide which operator is allowed to execute APP config changes  
+- Set `AUTH0_NETWORK_REMEDIATION_OWNER_SUB` to `auth0|<network-remediation-owner-user-id>`. `app-remediation-owner-user-id` can be retrieved from Auth0 tenant. This value decide which operator is allowed to execute NETWORK config changes  
 
 ### How It Works
 
@@ -309,9 +310,9 @@ Auth0 FGA provides relationship-based access control. WarRoom uses FGA to check 
 
 ### Get FGA API URL and Audience values
 
-Go to **Store Settings > API URL**  --> This is your `FGA_API_URL`  
-Set your `FGA_API_AUDIENCE` to the same URL but with a slash notation `/` at the end (see below Env vars example)  
-Set your `FGA_API_TOKEN_ISSUER` to `https://auth.fga.dev` which is the default  
+- Go to **Store Settings > API URL**  --> This is your `FGA_API_URL`  
+- Set your `FGA_API_AUDIENCE` to the same URL but with a slash notation `/` at the end (see below Env vars example)  
+- Set your `FGA_API_TOKEN_ISSUER` to `https://auth.fga.dev` which is the default  
 
 ### Paste this in Model in the Model Explorer in the Auth0 FGA Dashboard
 ```fga
@@ -561,6 +562,22 @@ GITHUB_APP_REMEDIATION_PATH=service-config.json
 GITHUB_NETWORK_REMEDIATION_REPO=your-org/warroom-network-remediation
 GITHUB_NETWORK_REMEDIATION_PATH=network-policy.json
 ```
+
+---
+
+### 11. Generate JWT Secret
+
+Run the following command to generate a secure 256-bit secret for signing JWT tokens:  
+```bash
+openssl rand -hex 32
+```
+
+Copy the output and set it as your `JWT_SECRET` environment variable:  
+```env
+JWT_SECRET=<your-generated-secret>
+```
+
+> **Note:** Keep this value secret and never commit it to version control.
 
 ---
 
